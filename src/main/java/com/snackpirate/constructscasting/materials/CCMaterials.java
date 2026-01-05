@@ -7,11 +7,14 @@ import net.minecraft.world.item.Tiers;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.system.linux.Stat;
+import slimeknights.tconstruct.common.TinkerTags;
 import slimeknights.tconstruct.library.client.data.material.AbstractMaterialRenderInfoProvider;
 import slimeknights.tconstruct.library.client.data.material.AbstractMaterialSpriteProvider;
 import slimeknights.tconstruct.library.data.material.AbstractMaterialDataProvider;
 import slimeknights.tconstruct.library.data.material.AbstractMaterialStatsDataProvider;
 import slimeknights.tconstruct.library.data.material.AbstractMaterialTraitDataProvider;
+import slimeknights.tconstruct.library.data.tinkering.AbstractMaterialTagProvider;
+import slimeknights.tconstruct.library.data.tinkering.AbstractModifierTagProvider;
 import slimeknights.tconstruct.library.materials.MaterialRegistry;
 import slimeknights.tconstruct.library.materials.definition.MaterialId;
 import slimeknights.tconstruct.library.materials.definition.MaterialVariantId;
@@ -74,8 +77,8 @@ public class CCMaterials extends AbstractMaterialDataProvider {
 	@Override
 	protected void addMaterials() {
 		addMaterial(frozenBone, 2, 12, true);
-        addMaterial(hogskin, 2, 0, true);
-		addMaterial(divinePearl, 2, 0, true);
+        addMaterial(hogskin, 2, 13, true);
+		addMaterial(divinePearl, 2, 14, true);
 		addMaterial(arcaneCloth, 2, 13, true);
 		addMaterial(arcanium, 3, 15, false);
 		addMaterial(exilite, 3, 16, false);
@@ -86,7 +89,7 @@ public class CCMaterials extends AbstractMaterialDataProvider {
 //		addMaterial(hogskin, 3, 0, true);
 
 		addMaterial(permafrost, 2, ORDER_REPAIR + 1, true);
-		addMaterial(emerald, 3, 0, true);
+		addMaterial(emerald, 2, ORDER_REPAIR + 2, true);
 		addMaterial(echoShard, 4, 0, true);
 
 		addMaterial(mithril, 4, ORDER_GENERAL + 7, false);
@@ -152,8 +155,8 @@ public class CCMaterials extends AbstractMaterialDataProvider {
 			//general material
 			addMaterialStats(mithril,
 					new HeadMaterialStats(1350, 7f, NETHERITE, 2.5f),
-					HandleMaterialStats.multipliers().durability(1.2f).miningSpeed(1.1f).attackSpeed(1.1f).attackDamage(0.8f).build(),
-					new LimbMaterialStats(1350, 0.1f, -0.15f, 0.1f),
+					HandleMaterialStats.multipliers().durability(1.15f).miningSpeed(1.05f).attackSpeed(1.05f).attackDamage(0.95f).build(),
+					new LimbMaterialStats(1350, 0.1f, -0.1f, 0.05f),
 					new GripMaterialStats(0.20f, 0.05f, 2.5f),
 					StatlessMaterialStats.BINDING,
 					CCMaterialStats.Statless.ADORNMENT
@@ -306,6 +309,27 @@ public class CCMaterials extends AbstractMaterialDataProvider {
 		@Override
 		public String getName() {
 			return "Construct's Casting Material Render Info";
+		}
+	}
+	public static class Tags extends AbstractMaterialTagProvider {
+
+		public Tags(PackOutput packOutput, String modId, ExistingFileHelper existingFileHelper) {
+			super(packOutput, modId, existingFileHelper);
+		}
+
+		@Override
+		protected void addTags() {
+			tag(TinkerTags.Materials.GENERAL).add(arcanium, arcaneCloth, mithril, frostRod);
+			tag(TinkerTags.Materials.MELEE).add(exilite, pyrium, frozenBone);
+			tag(TinkerTags.Materials.EXCLUDE_FROM_LOOT).add(pyrium); //pyrium is exclusively gated to tyros
+			tag(TinkerTags.Materials.BLAZING_BLOOD).add(mithril);
+			tag(TinkerTags.Materials.DISTANT).add(pyrium);
+			tag(TinkerTags.Materials.NETHER_GATED).add(hogskin, pyrium);
+		}
+
+		@Override
+		public String getName() {
+			return "Construct's Casting Material Tags Provider";
 		}
 	}
 }
