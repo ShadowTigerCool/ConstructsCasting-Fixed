@@ -121,6 +121,8 @@ public class CCItems {
 
         output.accept(CCFluids.moltenArcanium.getBucket());
         output.accept(CCFluids.moltenExilite.getBucket());
+		output.accept(CCFluids.moltenMithril.getBucket());
+		output.accept(CCFluids.moltenPyrium.getBucket());
         output.accept(CCFluids.squidInk.getBucket());
         output.accept(CCFluids.commonInk.getBucket());
         output.accept(CCFluids.uncommonInk.getBucket());
@@ -176,6 +178,7 @@ public class CCItems {
 			tag(ItemTags.create(ResourceLocation.parse("curios:spellbook"))).addTag(MOD_SPELLBOOKS);
             tag(MOD_JEWELRY).addTags();
 			tag(MOD_SPELLBOOKS).add(platedSpellbook.get(), slimySpellbook.get(), travellersSpellbook.get());
+			tag(TOOL_PARTS).add(spellbookPlating.get(), facetedGem.get(), spellbookCover.get(), wandRod.get(), pages.get());
 			addToolTags(eldritchStaff.get(),    DURABILITY, SPECIAL_TOOLS, HELD_ARMOR, INTERACTABLE_DUAL, AOE, DYEABLE, EMBELLISHMENT_WOOD, MOD_STAFFS);
 			addToolTags(wand,        STAFFS, SPECIAL_TOOLS, HELD_ARMOR, INTERACTABLE_DUAL, MOD_STAFFS, MULTIPART_TOOL);
 			addToolTags(battlestaff, STAFFS, SPECIAL_TOOLS, HELD_ARMOR, INTERACTABLE_DUAL, MOD_STAFFS, MELEE_PRIMARY, DURABILITY, MULTIPART_TOOL);
