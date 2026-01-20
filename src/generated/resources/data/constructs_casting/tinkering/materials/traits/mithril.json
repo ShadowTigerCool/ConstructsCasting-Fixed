@@ -2,7 +2,21 @@
   "default": [
     {
       "level": 1,
-      "name": "constructs_casting:spellbound"
+      "name": "constructs_casting:sorcerous"
     }
-  ]
+  ],
+  "perStat": {
+    "constructs_casting:adornment": [
+      {
+        "level": 1,
+        "name": "constructs_casting:mana_upgrade"
+      }
+    ],
+    "tconstruct:armor": [
+      {
+        "level": 1,
+        "name": "constructs_casting:mana_protection"
+      }
+    ]
+  }
 }

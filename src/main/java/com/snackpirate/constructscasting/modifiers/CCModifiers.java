@@ -6,9 +6,13 @@ import com.snackpirate.constructscasting.fluids.CCFluidEffects;
 import com.snackpirate.constructscasting.items.CCItems;
 import com.snackpirate.constructscasting.materials.CCToolStats;
 import io.redspace.ironsspellbooks.api.registry.AttributeRegistry;
+import io.redspace.ironsspellbooks.render.CinderousRarity;
 import net.minecraft.data.PackOutput;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.item.Rarity;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.fml.common.Mod;
 import slimeknights.mantle.data.predicate.damage.DamageSourcePredicate;
@@ -36,6 +40,9 @@ import slimeknights.tconstruct.library.modifiers.util.ModifierLevelDisplay;
 import slimeknights.tconstruct.library.modifiers.util.StaticModifier;
 import slimeknights.tconstruct.library.tools.SlotType;
 
+import java.util.List;
+import java.util.stream.Stream;
+
 import static slimeknights.tconstruct.library.json.math.ModifierFormula.MULTIPLIER;
 import static slimeknights.tconstruct.library.json.math.ModifierFormula.VALUE;
 
@@ -61,6 +68,11 @@ public class CCModifiers extends AbstractModifierProvider {
     public static final StaticModifier<Modifier> CALORIFIC = MODIFIERS.register("calorific", CalorificModifier::new);
 //	public static final StaticModifier<RingbearerModifier> RINGBEARER = MODIFIERS.register("ringbearer", RingbearerModifier::new);
     public static final ModifierId ARCANE = new ModifierId(ConstructsCasting.MOD_ID, "arcane");
+	public static final ModifierId COMBUSTIVE = new ModifierId(ConstructsCasting.MOD_ID, "combustive"); //pyrium melee/ranged: hits have a chance to apply immolation stacks
+	public static final ModifierId HEATSHIELD = new ModifierId(ConstructsCasting.MOD_ID, "heatshield"); //pyrium armor: fire damage increases protection?
+
+	public static final ModifierId SORCEROUS = new ModifierId(ConstructsCasting.MOD_ID, "sorcerous"); //mithril melee/ranged: hits have a chance to return mana
+	public static final ModifierId MANA_PROTECTION = new ModifierId(ConstructsCasting.MOD_ID, "mana_protection"); //mithril armor: consumes mana on hit for percent protection
 
 	public static final ModifierId SWIFTCASTING = new ModifierId(ConstructsCasting.MOD_ID, "swiftcasting");
 	public static final ModifierId SPELLBOUND = new ModifierId(ConstructsCasting.MOD_ID, "spellbound");
@@ -92,10 +104,14 @@ public class CCModifiers extends AbstractModifierProvider {
 	public static final ModifierId NATURE_DISPULSION    = new ModifierId(ConstructsCasting.MOD_ID, "nature_dispulsion");
 	public static final ModifierId ELDRITCH_DISPULSION  = new ModifierId(ConstructsCasting.MOD_ID, "eldritch_dispulsion");
 
+    public static final ModifierId FIRE_SPECIALIZATION  = new ModifierId(ConstructsCasting.MOD_ID, "fire_specialization");
+
 	public static final ModifierId ABYSSAL_UPGRADE      = new ModifierId(ConstructsCasting.MOD_ID, "abyssal_upgrade");
 	public static final ModifierId TECHNOMANCY_UPGRADE  = new ModifierId(ConstructsCasting.MOD_ID, "technomancy_upgrade");
 	public static final ModifierId AQUA_UPGRADE         = new ModifierId(ConstructsCasting.MOD_ID, "aqua_upgrade");
-	public static final ModifierId SOUND_UPGRADE       =  new ModifierId(ConstructsCasting.MOD_ID, "sound_upgrade");
+	public static final ModifierId SOUND_UPGRADE        = new ModifierId(ConstructsCasting.MOD_ID, "sound_upgrade");
+
+	public static final ModifierId DUMMY_SPELL_POWER_UPGRADE = new ModifierId(ConstructsCasting.MOD_ID, "dummy_spell_power_upgrade");
 
     public static final SlotType AFFINITY_SLOT = SlotType.getOrCreate("affinity");
 	//paper trait: lets you apply orb upgrades to level 4
@@ -107,6 +123,7 @@ public class CCModifiers extends AbstractModifierProvider {
     public static final ModifierId ICHORSPELLS = new ModifierId(ConstructsCasting.MOD_ID, "ichorspells");
 	public static final ModifierId RINGBEARER = new ModifierId(ConstructsCasting.MOD_ID, "ringbearer");
     public static final ModifierId SLOT_IMPROVEMENT = new ModifierId(ConstructsCasting.MOD_ID, "slot_improvement");
+	public static final ModifierId BLOODTHIRSTY = new ModifierId(ConstructsCasting.MOD_ID, "bloodthirsty");
 
 	public static final ModifierId FROSTBITE = new ModifierId(ConstructsCasting.MOD_ID, "frostbite");
 
@@ -116,6 +133,7 @@ public class CCModifiers extends AbstractModifierProvider {
 		super(generator);
 	}
 
+	private static final EquipmentSlot[] notOffhand = {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET, EquipmentSlot.MAINHAND};
 	@Override
 	protected void addModifiers() {
 		buildModifier(ARCANE).levelDisplay(ModifierLevelDisplay.DEFAULT)
@@ -126,7 +144,7 @@ public class CCModifiers extends AbstractModifierProvider {
 
 		buildModifier(SWIFTCASTING).levelDisplay(ModifierLevelDisplay.DEFAULT)
                 .addModule(AttributeModule.builder(AttributeRegistry.CASTING_MOVESPEED.get(), AttributeModifier.Operation.MULTIPLY_BASE)
-						.tooltipStyle(AttributeModule.TooltipStyle.ATTRIBUTE).amount(0.2f, 0.2f))
+					.tooltipStyle(AttributeModule.TooltipStyle.ATTRIBUTE).amount(0.2f, 0.2f))
 				.build();
 
 		buildModifier(SPELLBOUND)
@@ -135,10 +153,11 @@ public class CCModifiers extends AbstractModifierProvider {
 		buildModifier(ANTIFROST).addModule(ConditionalMeleeDamageModule.builder().target(LivingEntityPredicate.IS_FREEZING).eachLevel(2.0f));
 		buildModifier(MANA_UPGRADE)     .levelDisplay(ModifierLevelDisplay.DEFAULT)
 				.addModule(StatBoostModule.add(CCToolStats.MAX_MANA).toolTag(CCItems.Tags.MOD_SPELLBOOKS).eachLevel(80f))
-				.addModule(AttributeModule.builder(AttributeRegistry.MAX_MANA.get(), AttributeModifier.Operation.ADDITION).tool(ToolStackPredicate.tag(CCItems.Tags.MOD_SPELLBOOKS).inverted()).eachLevel(80f))
+				.addModule(AttributeModule.builder(AttributeRegistry.MAX_MANA.get(), AttributeModifier.Operation.ADDITION)
+						.slots(notOffhand).tool(ToolStackPredicate.tag(CCItems.Tags.MOD_SPELLBOOKS).inverted()).eachLevel(80f))
 				.build();
 		buildModifier(COOLDOWN_UPGRADE) .levelDisplay(ModifierLevelDisplay.DEFAULT)
-                .addModule(AttributeModule.builder(AttributeRegistry.COOLDOWN_REDUCTION.get(), AttributeModifier.Operation.MULTIPLY_BASE).tool(ToolStackPredicate.tag(CCItems.Tags.MAGIC_TOOL).inverted()).uniqueFrom(COOLDOWN_UPGRADE).eachLevel(0.05f))
+                .addModule(AttributeModule.builder(AttributeRegistry.COOLDOWN_REDUCTION.get(), AttributeModifier.Operation.MULTIPLY_BASE).slots(notOffhand).tool(ToolStackPredicate.tag(CCItems.Tags.MAGIC_TOOL).inverted()).uniqueFrom(COOLDOWN_UPGRADE).eachLevel(0.05f))
                 .addModule(StatBoostModule.add(CCToolStats.COOLDOWN_REDUCTION).toolTag(CCItems.Tags.MAGIC_TOOL).eachLevel(0.05f)).build();
 		buildModifier(FIRE_UPGRADE)     .addModule(spellPowerModifier(FIRE_UPGRADE,      AttributeRegistry.FIRE_SPELL_POWER     .get())).build();
 		buildModifier(ICE_UPGRADE)      .addModule(spellPowerModifier(ICE_UPGRADE,       AttributeRegistry.ICE_SPELL_POWER      .get())).build();
@@ -149,7 +168,10 @@ public class CCModifiers extends AbstractModifierProvider {
 		buildModifier(EVOCATION_UPGRADE).addModule(spellPowerModifier(EVOCATION_UPGRADE, AttributeRegistry.EVOCATION_SPELL_POWER.get())).build();
 		buildModifier(NATURE_UPGRADE)   .addModule(spellPowerModifier(NATURE_UPGRADE,    AttributeRegistry.NATURE_SPELL_POWER   .get())).build();
 		buildModifier(ELDRITCH_UPGRADE) .addModule(spellPowerModifier(ELDRITCH_UPGRADE,  AttributeRegistry.ELDRITCH_SPELL_POWER .get())).build();
-		buildModifier(SPELL_DISPULSION).addModule(AttributeModule.builder(AttributeRegistry.SPELL_RESIST, AttributeModifier.Operation.MULTIPLY_BASE).uniqueFrom(SPELL_DISPULSION).eachLevel(0.075f));
+
+		buildModifier(DUMMY_SPELL_POWER_UPGRADE).build();
+
+        buildModifier(SPELL_DISPULSION).addModule(AttributeModule.builder(AttributeRegistry.SPELL_RESIST, AttributeModifier.Operation.MULTIPLY_BASE).uniqueFrom(SPELL_DISPULSION).eachLevel(0.075f));
 		buildModifier(FIRE_DISPULSION).addModule(spellDispulsionModifier(FIRE_DISPULSION, AttributeRegistry.FIRE_MAGIC_RESIST.get())).build();
 		buildModifier(ICE_DISPULSION).addModule(spellDispulsionModifier(ICE_DISPULSION, AttributeRegistry.ICE_MAGIC_RESIST.get())).build();
 		buildModifier(LIGHTNING_DISPULSION).addModule(spellDispulsionModifier(LIGHTNING_DISPULSION, AttributeRegistry.LIGHTNING_MAGIC_RESIST.get())).build();
@@ -160,6 +182,9 @@ public class CCModifiers extends AbstractModifierProvider {
 		buildModifier(NATURE_DISPULSION).addModule(spellDispulsionModifier(NATURE_DISPULSION, AttributeRegistry.NATURE_MAGIC_RESIST.get())).build();
 		buildModifier(ELDRITCH_DISPULSION).addModule(spellDispulsionModifier(ELDRITCH_DISPULSION, AttributeRegistry.ELDRITCH_MAGIC_RESIST.get())).build();
 
+        buildModifier(FIRE_SPECIALIZATION).addModule(AttributeModule.builder(AttributeRegistry.FIRE_SPELL_POWER, AttributeModifier.Operation.MULTIPLY_BASE).eachLevel(0.2f)) //+0.1 fire spell, -0.1 everything else in absolution
+				.addModule(new RarityModule(CinderousRarity.CINDEROUS_RARITY))
+				.addModule(AttributeModule.builder(AttributeRegistry.SPELL_POWER, AttributeModifier.Operation.MULTIPLY_BASE).slots(notOffhand).eachLevel(-0.1f)).levelDisplay(ModifierLevelDisplay.SINGLE_LEVEL);
 
 		buildModifier(SPELL_PROTECTION).addModule(ProtectionModule.builder().source(DamageSourcePredicate.tag(CCDamageTypes.Tags.SPELL_BASED)).eachLevel(2.5f)).build();
 //		buildModifier(SPELLBOOK_STRAP).priority(95)
@@ -169,8 +194,8 @@ public class CCModifiers extends AbstractModifierProvider {
 //				.addModule(new VolatileFlagModule(ToolInventoryCapability.INCLUDE_OFFHAND));
 		buildModifier(IMPROVEABLE).addModule(ModifierSlotModule.slot(AFFINITY_SLOT).eachLevel(2)).levelDisplay(ModifierLevelDisplay.SINGLE_LEVEL).build();
 		buildModifier(RINGBEARER).addModule(new BonusCurioSlotModule("ring", new LevelingInt(0, 2), "64d62ea-03d8-4919-9ba5-fec06d332c72"));
-		buildModifier(REGROWTH).addModule(AttributeModule.builder(AttributeRegistry.MANA_REGEN, AttributeModifier.Operation.MULTIPLY_BASE).eachLevel(0.1f)).levelDisplay(ModifierLevelDisplay.DEFAULT).build();
-	    buildModifier(EXPEDIENT).addModule(AttributeModule.builder(AttributeRegistry.CAST_TIME_REDUCTION, AttributeModifier.Operation.MULTIPLY_BASE).eachLevel(0.1f)).levelDisplay(ModifierLevelDisplay.DEFAULT).build();
+		buildModifier(REGROWTH).addModule(AttributeModule.builder(AttributeRegistry.MANA_REGEN, AttributeModifier.Operation.MULTIPLY_BASE).slots(notOffhand).eachLevel(0.1f)).levelDisplay(ModifierLevelDisplay.DEFAULT).build();
+	    buildModifier(EXPEDIENT).addModule(AttributeModule.builder(AttributeRegistry.CAST_TIME_REDUCTION, AttributeModifier.Operation.MULTIPLY_BASE).slots(notOffhand).eachLevel(0.1f)).levelDisplay(ModifierLevelDisplay.DEFAULT).build();
         buildModifier(THICK_SKINNED)
                 .levelDisplay(ModifierLevelDisplay.SINGLE_LEVEL)
                 .addModule(ConditionalStatModule.stat(CCToolStats.SPELL_POWER)
@@ -203,15 +228,46 @@ public class CCModifiers extends AbstractModifierProvider {
 		buildModifier(FROSTBITE).priority(150).addModule(MobEffectModule.builder(CCFluidEffects.MobEffects.frostbite).time(RandomLevelingValue.random(5 * 20, 5 * 20)).chance(LevelingValue.flat(0.15f)).build());
 		ModifierSlotModule UPGRADE = ModifierSlotModule.slot(SlotType.UPGRADE).eachLevel(1);
 		buildModifier(REINSCRIBED).tooltipDisplay(BasicModifier.TooltipDisplay.TINKER_STATION).levelDisplay(ModifierLevelDisplay.SINGLE_LEVEL).addModule(UPGRADE);
-
-
+		List<ResourceLocation> summonSpells = Stream.of( //hardcoded because FUCK YOU
+				"irons_spellbooks:summon_swords",
+				"irons_spellbooks:summon_polar_bear",
+				"irons_spellbooks:summon_vex",
+				"irons_spellbooks:raise_dead",
+				"cataclysm_spellbooks:conjure_coral_golem",
+				"cataclysm_spellbooks:conjure_coralssus",
+				"cataclysm_spellbooks:conjure_clawdian",
+				"cataclysm_spellbooks:conjure_koboldiator",
+				"cataclysm_spellbooks:conjure_koboleton",
+				"cataclysm_spellbooks:thoths_witness",
+				"cataclysm_spellbooks:conjure_thrall",
+				"cataclysm_spellbooks:conjure_amethyst_crab",
+				"cataclysm_spellbooks:dos_swarm",
+				"cataclysm_spellbooks:construct_watchers",
+				"cataclysm_spellbooks:construct_prowler"
+		).map(ResourceLocation::parse).toList();
+		buildModifier(BLOODTHIRSTY).levelDisplay(ModifierLevelDisplay.SINGLE_LEVEL)
+				.addModule(new SelfDamageOnCastModule(summonSpells, LevelingValue.eachLevel(2)))
+				.addModule(AttributeModule.builder(AttributeRegistry.SUMMON_DAMAGE, AttributeModifier.Operation.MULTIPLY_BASE).eachLevel(0.15f))
+				.build();
+		buildModifier(COMBUSTIVE)
+				.addModule(new CombustiveModule(new LevelingValue(0.3f, 0.2f))) //1 -> 6 hits, 2 -> 4 hits, 3 -> 3 hits, 4 -> 2.4, 5 -> 2
+				.addModule(new RarityModule(CinderousRarity.CINDEROUS_RARITY))
+				.build(); //manyullyn takes 5 hits to max out, so around 5 hits for an explosion would be nice
+		buildModifier(MANA_PROTECTION)
+				.addModule(new ManaProtectionModule(LevelingValue.flat(4), LevelingValue.eachLevel(0.04f)))
+				.addModule(new RarityModule(Rarity.RARE))
+				.build();
+		buildModifier(SORCEROUS)
+				.addModule(new ManaOnHitModule(LevelingValue.flat(3), LevelingValue.eachLevel(0.25f)))
+				.addModule(new RarityModule(Rarity.RARE))
+				.build();
 	}
-	private static AttributeModule spellPowerModifier(ModifierId modifier, Attribute attribute) {
-		return AttributeModule.builder(attribute, AttributeModifier.Operation.MULTIPLY_BASE).uniqueFrom(modifier).eachLevel(0.05f);
+	private static AttributeModule spellPowerModifier(ModifierId modifier, Attribute attribute) { //no spell power upgrades on offhand >:(
+		return AttributeModule.builder(attribute, AttributeModifier.Operation.MULTIPLY_BASE).slots(notOffhand).uniqueFrom(modifier).eachLevel(0.05f);
 	}
 
 	private static AttributeModule spellDispulsionModifier(ModifierId modifier, Attribute attribute) {
-		return AttributeModule.builder(attribute, AttributeModifier.Operation.MULTIPLY_BASE).uniqueFrom(modifier).eachLevel(0.15f);
+		return AttributeModule.builder(attribute, AttributeModifier.Operation.MULTIPLY_BASE).slots(notOffhand).uniqueFrom(modifier).eachLevel(0.15f);
 	}
 	@Override
 	public String getName() {
@@ -226,15 +282,19 @@ public class CCModifiers extends AbstractModifierProvider {
 		@Override
 		protected void addTags() {
 			tag(TinkerTags.Modifiers.DUAL_INTERACTION).add(CASTING.getId());
-			tag(TinkerTags.Modifiers.GENERAL_UPGRADES).add(MANA_UPGRADE, COOLDOWN_UPGRADE, FIRE_UPGRADE, ICE_UPGRADE, LIGHTNING_UPGRADE, ENDER_UPGRADE, HOLY_UPGRADE, BLOOD_UPGRADE, NATURE_UPGRADE, ELDRITCH_UPGRADE, EXPEDIENT).addOptional(AQUA_UPGRADE, ABYSSAL_UPGRADE, TECHNOMANCY_UPGRADE);
+			tag(TinkerTags.Modifiers.GENERAL_UPGRADES)
+					.add(MANA_UPGRADE, COOLDOWN_UPGRADE, EXPEDIENT, DUMMY_SPELL_POWER_UPGRADE);
 			tag(TinkerTags.Modifiers.BONUS_SLOTLESS).add(REINSCRIBED);
 			tag(TinkerTags.Modifiers.PROTECTION_DEFENSE).add(SPELL_PROTECTION);
-            tag(TinkerTags.Modifiers.GENERAL_ABILITIES).add(IMPROVEABLE);
+            tag(TinkerTags.Modifiers.GENERAL_ABILITIES).add(IMPROVEABLE, IMBUED.getId());
 			tag(TinkerTags.Modifiers.INTERACTION_ABILITIES).add(CASTING.getId());
 			tag(TinkerTags.Modifiers.BOOT_UPGRADES).add(SWIFTCASTING);
 			tag(TinkerTags.Modifiers.LEGGING_ABILITIES).add(SPELLBOOK_STRAP.getId());
 			tag(TinkerTags.Modifiers.MELEE_ABILITIES).add(SPELLBLADE.getId());
             tag(TinkerTags.Modifiers.CHESTPLATE_ABILITIES).add(RINGBEARER);
+			tag(TinkerTags.Modifiers.HIDDEN_FROM_RECIPE_VIEWERS).add(DUMMY_SPELL_POWER_UPGRADE);
+			tag(TinkerTags.Modifiers.EXTRACT_MODIFIER_BLACKLIST).add(DUMMY_SPELL_POWER_UPGRADE);
+			tag(TinkerTags.Modifiers.BLOCK_WHILE_CHARGING).add(CASTING.getId());
 		}
 		@Override
 		public String getName() {

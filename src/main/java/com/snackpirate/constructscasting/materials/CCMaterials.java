@@ -43,6 +43,7 @@ public class CCMaterials extends AbstractMaterialDataProvider {
 	public static final MaterialId frozenBone = createMaterial("frozen_bone");
 	public static final MaterialId frostRod = createMaterial("frosted_rod");
 	public static final MaterialId hogskin = createMaterial("hogskin");
+	public static final MaterialId bloodyVellum = createMaterial("bloody_vellum");
 //	public static final MaterialId dragonskin = createMaterial("dragonskin");
 	public static final MaterialId rainbowSlime = createMaterial("rainbowslime");
 
@@ -78,6 +79,7 @@ public class CCMaterials extends AbstractMaterialDataProvider {
 	protected void addMaterials() {
 		addMaterial(frozenBone, 2, 12, true);
         addMaterial(hogskin, 2, 13, true);
+		addMaterial(bloodyVellum, 3, 17, true);
 		addMaterial(divinePearl, 2, 14, true);
 		addMaterial(arcaneCloth, 2, 13, true);
 		addMaterial(arcanium, 3, 15, false);
@@ -162,7 +164,7 @@ public class CCMaterials extends AbstractMaterialDataProvider {
 					CCMaterialStats.Statless.ADORNMENT
 			);
 			addArmorShieldStats(mithril,
-					PlatingMaterialStats.builder().durabilityFactor(45).armor(2, 5, 7, 2).knockbackResistance(0f),
+					PlatingMaterialStats.builder().durabilityFactor(45).armor(2, 5, 7, 2).knockbackResistance(0.05f).toughness(1.5f),
 					StatlessMaterialStats.MAILLE
 			);
 			//damage focused
@@ -174,10 +176,11 @@ public class CCMaterials extends AbstractMaterialDataProvider {
 					StatlessMaterialStats.BINDING,
 					CCMaterialStats.Statless.ADORNMENT
 			);
-			addArmorShieldStats(pyrium,
-					PlatingMaterialStats.builder().durabilityFactor(40).armor(2, 5, 6, 2).knockbackResistance(0f),
-					StatlessMaterialStats.MAILLE
-			);
+            //until i can find a good trait for pyrium
+//			addArmorShieldStats(pyrium,
+//					PlatingMaterialStats.builder().durabilityFactor(40).armor(2, 5, 6, 2).knockbackResistance(0f),
+//					StatlessMaterialStats.MAILLE
+//			);
 			addMaterialStats(divinePearl,
 					StatlessMaterialStats.ARROW_HEAD);
 			addMaterialStats(frozenBone,
@@ -191,6 +194,7 @@ public class CCMaterials extends AbstractMaterialDataProvider {
 			addMaterialStats(arcaneCloth, StatlessMaterialStats.BINDING, StatlessMaterialStats.MAILLE, StatlessMaterialStats.BOWSTRING,
 					new MagicClothMaterialStats(10, 0.05f));
             addMaterialStats(hogskin, new MagicClothMaterialStats(8, 0));
+			addMaterialStats(bloodyVellum, new MagicClothMaterialStats(10, -0.15f));
 			addMaterialStats(MaterialIds.dragonScale, new MagicBaseMaterialStats(200, -0.1f));
 			addMaterialStats(rainbowSlime);
 
@@ -232,8 +236,12 @@ public class CCMaterials extends AbstractMaterialDataProvider {
 			addTraits(cosmichalcum, MaterialRegistry.MELEE_HARVEST, CCModifiers.ENDER_UPGRADE);
 			addTraits(cosmichalcum, MaterialRegistry.ARMOR, CCModifiers.ENDER_UPGRADE);
 
-			addDefaultTraits(mithril, CCModifiers.SPELLBOUND);
-			addDefaultTraits(pyrium, CCModifiers.FIRE_UPGRADE);
+			addDefaultTraits(mithril, CCModifiers.SORCEROUS);
+			addTraits(mithril, MaterialRegistry.ARMOR, CCModifiers.MANA_PROTECTION);
+            addTraits(mithril, CCMaterialStats.Statless.ADORNMENT.getIdentifier(), CCModifiers.MANA_UPGRADE);
+			addDefaultTraits(pyrium, CCModifiers.COMBUSTIVE);
+			addTraits(pyrium, MaterialRegistry.ARMOR, CCModifiers.HEATSHIELD);
+            addTraits(pyrium, CCMaterialStats.Statless.ADORNMENT.getIdentifier(), CCModifiers.FIRE_SPECIALIZATION);
 
 			addDefaultTraits(arcaneCloth, CCModifiers.SPELLBOUND);
 			addDefaultTraits(frozenBone, CCModifiers.ANTIFROST);
@@ -249,6 +257,7 @@ public class CCMaterials extends AbstractMaterialDataProvider {
             addTraits(MaterialIds.paper, MagicClothMaterialStats.ID, CCModifiers.IMPROVEABLE);
 			addTraits(MaterialIds.leaves, MagicClothMaterialStats.ID, CCModifiers.SOLAR_CHARGED);
             addDefaultTraits(hogskin, CCModifiers.THICK_SKINNED);
+			addDefaultTraits(bloodyVellum, CCModifiers.BLOODTHIRSTY);
 			addTraits(MaterialIds.leather, MagicClothMaterialStats.ID, CCModifiers.CONSERVING);
 //            addTraits(MaterialIds.ancientHide, MagicClothMaterialStats.ID, ModifierIds.fortified);
             addTraits(MaterialIds.ichorskin, MagicClothMaterialStats.ID, CCModifiers.ICHORSPELLS);
@@ -291,13 +300,14 @@ public class CCMaterials extends AbstractMaterialDataProvider {
 			buildRenderInfo(arcaneCloth).color(0x73abde).fallbacks("cloth");
 			buildRenderInfo(divinePearl).color(0xfecbe6).fallbacks("crystal");
 			buildRenderInfo(hogskin).color(0xe8a074).fallbacks("cloth", "primitive");
+			buildRenderInfo(bloodyVellum).color(0x8c2538).fallbacks("cloth", "primitive");
 			buildRenderInfo(exilite).color(0x47494b);
 			buildRenderInfo(frozenBone).color(0xd0e5e4).fallbacks("bone", "rock");
 			buildRenderInfo(rainbowSlime).color(0xFFFF00);
 			buildRenderInfo(frostRod).color(0xc8ecec).fallbacks("metal", "primitive");
 
 			buildRenderInfo(mithril).color(0xbdf3f3).fallbacks("metal");
-			buildRenderInfo(pyrium).color(0xd6af39).fallbacks("metal");
+			buildRenderInfo(pyrium).color(0xd6af39).fallbacks("metal").luminosity(15);
 			buildRenderInfo(cosmichalcum).color(0x111081).fallbacks("metal");
 
 			buildRenderInfo(permafrost).color(0xEEEEEE).fallbacks("crystal");

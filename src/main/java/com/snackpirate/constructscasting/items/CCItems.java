@@ -7,6 +7,7 @@ import com.snackpirate.constructscasting.materials.CCMaterialStats;
 import com.snackpirate.constructscasting.materials.MagicBaseMaterialStats;
 import com.snackpirate.constructscasting.materials.MagicClothMaterialStats;
 import io.redspace.ironsspellbooks.registries.ItemRegistry;
+import io.redspace.ironsspellbooks.render.CinderousRarity;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.ItemTagsProvider;
@@ -49,6 +50,10 @@ public class CCItems {
 	public static final ItemObject<Item> exiliteIngot = ITEMS.register("exilite_ingot", () -> new Item(new Item.Properties().stacksTo(64)));
 	public static final ItemObject<Item> exiliteNugget = ITEMS.register("exilite_nugget", () -> new Item(new Item.Properties().stacksTo(64)));
 
+	public static final ItemObject<Item> arcaneNugget = ITEMS.register("arcane_nugget", () -> new Item(new Item.Properties().stacksTo(65)));
+	public static final ItemObject<Item> mithrilNugget = ITEMS.register("mithril_nugget", () -> new Item(new Item.Properties().stacksTo(64).rarity(Rarity.RARE)));
+	public static final ItemObject<Item> pyriumNugget = ITEMS.register("pyrium_nugget", () -> new Item(new Item.Properties().stacksTo(64).rarity(CinderousRarity.CINDEROUS_RARITY)));
+
 	public static final ItemObject<Item> wizardslimeBall = ITEMS.register("wizardslime_ball", () -> new Item(new Item.Properties().stacksTo(64)));
 	public static final ItemObject<Item> slimeRune = ITEMS.register("slime_rune", () -> new Item(new Item.Properties().stacksTo(64)));
 
@@ -81,8 +86,15 @@ public class CCItems {
     public static void addTabItems(CreativeModeTab.ItemDisplayParameters itemDisplayParameters, CreativeModeTab.Output output) {
         output.accept(potatoStewBowl);
         output.accept(poisonousPotatoStewBowl);
+		output.accept(CCBlocks.exiliteBlock);
         output.accept(exiliteIngot);
         output.accept(exiliteNugget);
+		output.accept(CCBlocks.arcaneBlock);
+		output.accept(arcaneNugget);
+		output.accept(CCBlocks.mithrilBlock);
+		output.accept(mithrilNugget);
+		output.accept(CCBlocks.pyriumBlock);
+		output.accept(pyriumNugget);
         output.accept(slimySpellbook);
 //        output.accept(eldritchStaff);
 
@@ -172,17 +184,24 @@ public class CCItems {
 //			tag(SLIME_FOCUS).add(wizardslimeBall.get());
 //			tag(ItemTags.create(IronsSpellbooks.id("school_focus"))).add(wizardslimeBall.get());
 //			tag(ItemTags.create(IronsSpellbooks.id("inscribed_rune"))).add(slimeRune.get());
+			tag(ItemTags.create(ResourceLocation.parse("forge:ingots/arcane"))).add(ItemRegistry.ARCANE_INGOT.get());
+
 			tag(ItemTags.create(ResourceLocation.parse("forge:ingots/exilite"))).add(exiliteIngot.get());
 			tag(ItemTags.create(ResourceLocation.parse("forge:nuggets/exilite"))).add(exiliteNugget.get());
+
+			tag(ItemTags.create(ResourceLocation.parse("forge:nuggets/mithril"))).add(mithrilNugget.get());
+			tag(ItemTags.create(ResourceLocation.parse("forge:nuggets/pyrium"))).add(pyriumNugget.get());
+			tag(ItemTags.create(ResourceLocation.parse("forge:nuggets/arcane"))).add(arcaneNugget.get());
+
 			tag(TinkerTags.Items.BONUS_SLOTS).addTags(MOD_SPELLBOOKS, MOD_STAFFS); //jewelry will probably be stat/trait-only
 			tag(ItemTags.create(ResourceLocation.parse("curios:spellbook"))).addTag(MOD_SPELLBOOKS);
             tag(MOD_JEWELRY).addTags();
 			tag(MOD_SPELLBOOKS).add(platedSpellbook.get(), slimySpellbook.get(), travellersSpellbook.get());
+			tag(SMALL_TOOLS).add(platedSpellbook.get(), travellersSpellbook.get(), slimySpellbook.get());
 			tag(TOOL_PARTS).add(spellbookPlating.get(), facetedGem.get(), spellbookCover.get(), wandRod.get(), pages.get());
-			addToolTags(eldritchStaff.get(),    DURABILITY, SPECIAL_TOOLS, HELD_ARMOR, INTERACTABLE_DUAL, AOE, DYEABLE, EMBELLISHMENT_WOOD, MOD_STAFFS);
-			addToolTags(wand,        STAFFS, SPECIAL_TOOLS, HELD_ARMOR, INTERACTABLE_DUAL, MOD_STAFFS, MULTIPART_TOOL);
-			addToolTags(battlestaff, STAFFS, SPECIAL_TOOLS, HELD_ARMOR, INTERACTABLE_DUAL, MOD_STAFFS, MELEE_PRIMARY, DURABILITY, MULTIPART_TOOL);
-
+			addToolTags(eldritchStaff.get(),    DURABILITY, HELD_ARMOR, INTERACTABLE_DUAL, AOE, DYEABLE, EMBELLISHMENT_WOOD, MOD_STAFFS);
+			addToolTags(wand,        SMALL_TOOLS, HELD_ARMOR, INTERACTABLE_DUAL, MOD_STAFFS, MULTIPART_TOOL);
+			addToolTags(battlestaff, BROAD_TOOLS, HELD_ARMOR, INTERACTABLE_DUAL, MOD_STAFFS, MELEE_PRIMARY, DURABILITY, MULTIPART_TOOL);
 
 			addToolTags(flamberge, HELD_ARMOR, MULTIPART_TOOL, DURABILITY, HARVEST, MELEE_PRIMARY, INTERACTABLE_RIGHT, SWORD, BONUS_SLOTS, ItemTags.SWORDS, ANCIENT_TOOLS);
 

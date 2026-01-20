@@ -8,6 +8,7 @@
     "ringbearer": "#acebfa",
 
     "__tool_upgrades__": null,
+    "dummy_spell_power_upgrade": "#B3BEC5",
     "mana_upgrade": "#79c0f3",
     "fire_upgrade": "#FFAA00",
     "ice_upgrade": "#d0f9ff",
@@ -39,6 +40,8 @@
     "spell_dispulsion": "#6e7278",
     "eldritch_dispulsion": "#0f839c",
 
+    "fire_specialization": "#FFAA00",
+
     "__traits__": null,
     "arcane": "#f1cdfa",
     "antimagic": "#6e7278",
@@ -47,6 +50,7 @@
     "antifrost": "#eaf8f9",
     "conserving": "#C65C35",
     "thick_skinned": "#e8a074",
+    "bloodthirsty": "#8c2538",
     "regrowth": "#8e661b",
     "expedient": "#8AAE60",
     "solar_charged": "#48B518",
@@ -57,7 +61,11 @@
     "enderbender": "#8F648F",
     "apoptotic": "#4D4D4D",
     "calorific": "#DBCC0B",
-    "frostbite": "#eaf8f9"
+    "frostbite": "#eaf8f9",
+    "combustive": "#da9809",
+    "heatwave": "#da9809",
+    "mana_protection": "#bdf3f3",
+    "sorcerous": "#bdf3f3"
   },
   "material.constructs_casting": {
     "__tier_1__": null,
@@ -73,6 +81,7 @@
     "hogskin": "#e8a074",
     "divine_pearl": "#fecbe6",
     "__tier_3__": null,
+    "bloody_vellum": "#8c2538",
     "frosted_rod": "#fcfcfc",
     "arcanium":"#adc6f5",
     "arcane_cloth":"#adc6f5",
@@ -86,7 +95,7 @@
     "ichor_crystal": "#ff970d",
     "echo_shard": "#0f839c",
     "mithril": "#bdf3f3",
-    "pyrium": "#d6af39"
+    "pyrium": "#da9809"
   },
   "stat.tconstruct.slot.affinity": "#ea9999"
 }

@@ -1,0 +1,43 @@
+{
+  "level_display": "tconstruct:single_level",
+  "modules": [
+    {
+      "type": "constructs_casting:self_damage_cast",
+      "health_depleted": {
+        "each_level": 2.0
+      },
+      "spell_filter": [
+        "irons_spellbooks:summon_swords",
+        "irons_spellbooks:summon_polar_bear",
+        "irons_spellbooks:summon_vex",
+        "irons_spellbooks:raise_dead",
+        "cataclysm_spellbooks:conjure_coral_golem",
+        "cataclysm_spellbooks:conjure_coralssus",
+        "cataclysm_spellbooks:conjure_clawdian",
+        "cataclysm_spellbooks:conjure_koboldiator",
+        "cataclysm_spellbooks:conjure_koboleton",
+        "cataclysm_spellbooks:thoths_witness",
+        "cataclysm_spellbooks:conjure_thrall",
+        "cataclysm_spellbooks:conjure_amethyst_crab",
+        "cataclysm_spellbooks:dos_swarm",
+        "cataclysm_spellbooks:construct_watchers",
+        "cataclysm_spellbooks:construct_prowler"
+      ]
+    },
+    {
+      "type": "tconstruct:attribute",
+      "attribute": "irons_spellbooks:summon_damage",
+      "each_level": 0.15,
+      "operation": "multiply_base",
+      "slots": [
+        "mainhand",
+        "offhand",
+        "feet",
+        "legs",
+        "chest",
+        "head"
+      ]
+    }
+  ],
+  "tooltip_display": "always"
+}

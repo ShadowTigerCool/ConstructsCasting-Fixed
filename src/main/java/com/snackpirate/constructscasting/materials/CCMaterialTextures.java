@@ -74,6 +74,16 @@ public class CCMaterialTextures extends AbstractMaterialSpriteProvider {
 						.addARGB(216, 0xFFe8a074)
 						.addARGB(255, 0xFFf2ba9a)
 						.build()));
+		buildMaterial(CCMaterials.bloodyVellum).repairKit().statType(MagicClothMaterialStats.ID)
+				.fallbacks("cloth", "primitive")
+				.transformer(new RecolorSpriteTransformer(GreyToColorMapping.builderFromBlack()
+						.addARGB(63,  0xFF420000)
+						.addARGB(102, 0xFF5b0716)
+						.addARGB(140, 0xFF722037)
+						.addARGB(178, 0xFF8c2538)
+						.addARGB(216, 0xFF9d3347)
+						.addARGB(255, 0xFFb74c60)
+						.build()));
 		buildMaterial(CCMaterials.frozenBone).meleeHarvest().statType(StatlessMaterialStats.BINDING.getIdentifier(), MagicBaseMaterialStats.ID).repairKit()
 				.fallbacks("bone", "rock")
 				.transformer(new RecolorSpriteTransformer(GreyToColorMapping.builderFromBlack()
@@ -126,7 +136,8 @@ public class CCMaterialTextures extends AbstractMaterialSpriteProvider {
 						.addTexture(255, ConstructsCasting.id("item/materials/generator/mithril/mithril_255"))
 						.animated(ConstructsCasting.id("item/materials/generator/mithril/frames"), 8))
 		;
-		buildMaterial(CCMaterials.pyrium).meleeHarvest().ranged().armor().maille().repairKit().statType(CCMaterialStats.Statless.ADORNMENT)
+		buildMaterial(CCMaterials.pyrium).meleeHarvest().ranged().armor().maille().repairKit()
+//				.statType(CCMaterialStats.Statless.ADORNMENT)
 				.fallbacks("metal")
 				.transformer(new RecolorSpriteTransformer(GreyToColorMapping.builderFromBlack()
 						.addARGB(63,  0xFF491b10)
@@ -137,6 +148,16 @@ public class CCMaterialTextures extends AbstractMaterialSpriteProvider {
 						.addARGB(255, 0xFFe8e895)
 						.build()));
 
+//        buildMaterial(CCMaterials.mithril).meleeHarvest().ranged().armor().maille().repairKit().statType(CCMaterialStats.Statless.ADORNMENT)
+//                .fallbacks("metal")
+//                .transformer(new RecolorSpriteTransformer(GreyToColorMapping.builderFromBlack()
+//                        .addARGB(63,  0xFF496c84)
+//                        .addARGB(102, 0xFF5b8092)
+//                        .addARGB(140, 0xFF7dacaf)
+//                        .addARGB(178, 0xFF99cdd9)
+//                        .addARGB(216, 0xFFbdf3f3)
+//                        .addARGB(255, 0xFFdcfffe)
+//                        .build()));
 		ResourceLocation cosmiBase = ConstructsCasting.id("item/materials/generator/cosmichalcum");
 		ResourceLocation cosmiBorder = ConstructsCasting.id("item/materials/generator/cosmichalcum_border");
 		ResourceLocation cosmiHighlight = ConstructsCasting.id("item/materials/generator/cosmichalcum_highlight");

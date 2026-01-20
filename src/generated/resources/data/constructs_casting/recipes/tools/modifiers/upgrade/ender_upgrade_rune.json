@@ -2,6 +2,7 @@
   "type": "tconstruct:incremental_modifier",
   "allow_crystal": true,
   "amount_per_item": 1,
+  "check_trait_level": true,
   "input": {
     "item": "irons_spellbooks:ender_rune"
   },
@@ -14,6 +15,12 @@
     "upgrades": 1
   },
   "tools": {
-    "tag": "tconstruct:modifiable"
+    "type": "forge:difference",
+    "base": {
+      "tag": "tconstruct:modifiable"
+    },
+    "subtracted": {
+      "tag": "tconstruct:modifiable/single_use"
+    }
   }
 }
